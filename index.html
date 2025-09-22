@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naresse Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Définition d'une palette de couleurs personnalisée pour plus de cohérence */
+        :root {
+            --color-primary: #10B981; /* Vert émeraude */
+            --color-secondary: #065F46; /* Vert foncé */
+            --color-accent: #F59E0B; /* Orange ambré */
+            --color-background: #F8FAFC; /* Gris clair */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+        }
+
+        /* Style personnalisé pour les sections avec image de fond */
+        .section-with-bg {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .section-with-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4); /* Overlay sombre pour le contraste */
+            z-index: 1;
+        }
+        .section-with-bg > * {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Modal pour les messages (succès, erreur) -->
+    <div id="message-display-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[100] flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm mx-4 text-center">
+            <h3 id="message-title" class="text-2xl font-bold mb-4 text-gray-800"></h3>
+            <p id="message-content" class="text-gray-600"></p>
+            <button onclick="document.getElementById('message-display-modal').classList.add('hidden')"
+                    class="mt-6 px-6 py-2 rounded-full bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition duration-300">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Préchargeur personnalisé -->
+    <div id="preloader" class="fixed inset-0 bg-slate-50 z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+        <img src="NR1.jpg" alt="Logo Naresse Market" class="h-24 w-auto mb-4 animate-pulse rounded-full" />
+        <p class="text-lg font-semibold text-gray-700">Chargement...</p>
+    </div>
+
+    <!-- En-tête de la page -->
+    <header class="bg-green-100 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto p-4 flex justify-between items-center">
+            <!-- Bouton pour le menu latéral (Paramètres) -->
+            <button id="open-settings" class="flex items-center space-x-2 text-gray-700 font-bold transition-transform transform hover:scale-105">
+                <i class="fas fa-bars"></i>
+                <span class="hidden sm:inline">Paramètres</span>
+            </button>
+
+            <!-- Logo centré -->
+            <a href="#accueil" class="flex items-center space-x-2">
+                <img src="NR1.jpg" alt="Logo Naresse Market" class="h-16 w-auto rounded-full shadow-md"/>
+                <span class="text-2xl md:text-3xl font-black text-emerald-800 hidden md:inline">Naresse Market</span>
+            </a>
+
+            <!-- Bouton pour le menu mobile -->
+            <div class="md:hidden">
+                <button id="menu-button" class="text-2xl text-gray-700 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Menu mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-50 shadow-inner">
+            <nav class="flex flex-col space-y-4 p-4 text-center text-lg font-semibold">
+                <a href="#accueil" class="hover:text-amber-500 transition duration-300 py-2 border-b border-gray-200">Accueil</a>
+                <a href="#expertise" class="hover:text-amber-500 transition duration-300 py-2 border-b border-gray-200">Expertise</a>
+                <a href="#apropos" class="hover:text-amber-500 transition duration-300 py-2 border-b border-gray-200">À Propos</a>
+                <a href="#actualites" class="hover:text-amber-500 transition duration-300 py-2 border-b border-gray-200">Actualités</a>
+                <a href="#produits" class="hover:text-amber-500 transition duration-300 py-2 border-b border-gray-200">Produits</a>
+                <a href="#contact" class="hover:text-amber-500 transition duration-300 py-2">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Menu latéral des paramètres -->
+    <div id="settings-menu"
+        class="fixed top-0 left-0 h-full w-64 bg-green-100 shadow-2xl transform -translate-x-full transition-transform duration-300 z-50">
+        <div class="p-4 border-b font-bold text-lg text-emerald-800">
+            Menu Paramètres
+        </div>
+
+        <nav class="flex flex-col space-y-4 p-4 font-medium">
+            <a href="#accueil" class="hover:text-amber-500 transition duration-300">Accueil</a>
+            <a href="#expertise" class="hover:text-amber-500 transition duration-300">Expertise</a>
+            <a href="#apropos" class="hover:text-amber-500 transition duration-300">À Propos</a>
+            <a href="#produits" class="hover:text-amber-500 transition duration-300">Produits</a>
+            <a href="#actualites" class="hover:text-amber-500 transition duration-300">Actualités</a>
+            <a href="#contact" class="hover:text-amber-500 transition duration-300">Contact</a>
+        </nav>
+        <div class="p-4 border-t">
+            <button id="close-settings" class="w-full bg-gray-200 hover:bg-gray-300 py-2 rounded-full font-semibold">
+                Fermer
+            </button>
+        </div>
+    </div>
+
+    <main>
+        <!-- Section d'Accueil -->
+        <section id="accueil" class="section-with-bg h-screen flex items-center justify-center text-white" style="background-image: url('NR12.jpg');">
+            <div class="bg-black bg-opacity-40 p-12 rounded-2xl shadow-xl text-center backdrop-blur-sm">
+                <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tight">Bienvenue chez Naresse Market</h1>
+                <p class="text-xl md:text-2xl font-medium">Le Bien-être par les Plantes.</p>
+                <a href="#produits" class="mt-8 inline-block bg-amber-500 text-white font-bold py-3 px-8 rounded-full hover:bg-amber-600 transition duration-300 transform hover:scale-105">
+                    Découvrir nos produits
+                </a>
+            </div>
+        </section>
+
+        <!-- Section Expertise -->
+        <section id="expertise" class="py-20 bg-slate-100">
+            <div class="container mx-auto p-4 text-center">
+                <h2 class="text-4xl font-black mb-12 text-emerald-800">Notre Expertise</h2>
+                <div class="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                    <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center transform transition-transform hover:scale-105 duration-300">
+                        <i class="fas fa-leaf text-6xl mb-6 text-emerald-600"></i>
+                        <h3 class="text-2xl font-bold mb-2">Sélection Rigoureuse</h3>
+                        <p class="text-gray-600">Nous choisissons les meilleures plantes pour garantir une qualité irréprochable et un bien-être optimal.</p>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center transform transition-transform hover:scale-105 duration-300">
+                        <i class="fas fa-mortar-pestle text-6xl mb-6 text-amber-500"></i>
+                        <h3 class="text-2xl font-bold mb-2">Savoir-faire Traditionnel</h3>
+                        <p class="text-gray-600">Nos produits sont le fruit d'un savoir-faire ancestral, respectueux de la nature et de ses bienfaits.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+ <!-- Section À Propos -->
+        <section id="apropos" class="py-20 bg-slate-100" style="background-image: url('NR10.jpg');">
+            <div class="container mx-auto p-4">
+                <h2 class="text-4xl font-black mb-12 text-center text-emerald-800">À Propos de Nous</h2>
+                <div class="flex flex-col md:flex-row items-center gap-12 max-w-5xl mx-auto">
+                    <img src="https://placehold.co/600x400/10B981/FFFFFF?text=Notre+Histoire" alt="À Propos de Naresse Market" class="rounded-2xl shadow-xl md:w-1/2 transform transition-transform hover:scale-105 duration-300"/>
+                      <p class="md:w-1/2 text-lg leading-relaxed text-gray-700">
+                        Naresse Market est née de la passion pour les plantes et leurs vertus. Notre mission est de vous reconnecter à la nature en vous proposant des produits authentiques et de qualité, issus d'une agriculture respectueuse de l'environnement. Chaque produit est une promesse de bien-être, sélectionné et préparé avec le plus grand soin pour votre santé et votre équilibre.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Produits -->
+        <section id="produits" class="section-with-bg py-20" style="background-image: url('NR13.jpg');">
+            <div class="container mx-auto p-4 text-center">
+                <h2 class="text-4xl font-black mb-12 text-emerald-800">Nos Produits</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Cartes de produits -->
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 text-center transform transition-transform hover:scale-105 duration-300">
+                        <img src="NR2.jpg" alt="Thé Détox" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Thé Bétok</h3>
+                        <p class="text-gray-600 mb-4">Une infusion au citron vert pour revitaliser votre corps et votre esprit.</p>
+                        <a href="#contact" class="inline-block bg-amber-500 text-white font-bold py-2 px-6 rounded-full hover:bg-amber-600 transition duration-300">
+                            Commander
+                        </a>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 text-center transform transition-transform hover:scale-105 duration-300">
+                        <img src="NR7.jpg" alt="Pétale de Gingembre" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Pétale de Gingembre</h3>
+                        <p class="text-gray-600 mb-4">Ces pétales de gingembre séchées ont un goût unique et des bienfaits revigorants.</p>
+                        <a href="#contact" class="inline-block bg-amber-500 text-white font-bold py-2 px-6 rounded-full hover:bg-amber-600 transition duration-300">
+                            Commander
+                        </a>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 text-center transform transition-transform hover:scale-105 duration-300">
+                        <img src="NR9.jpg" alt="Artemisia Annua" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Artemisia Annua</h3>
+                        <p class="text-gray-600 mb-4">Une description sur les propriétés naturelles de cette plante unique.</p>
+                        <a href="#contact" class="inline-block bg-amber-500 text-white font-bold py-2 px-6 rounded-full hover:bg-amber-600 transition duration-300">
+                            Commander
+                        </a>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 text-center transform transition-transform hover:scale-105 duration-300">
+                        <img src="NR10.jpg" alt="Tea For Men" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Tea For Men</h3>
+                        <p class="text-gray-600 mb-4">Une infusion spécialement formulée pour répondre aux besoins des hommes.</p>
+                        <a href="#contact" class="inline-block bg-amber-500 text-white font-bold py-2 px-6 rounded-full hover:bg-amber-600 transition duration-300">
+                            Commander
+                        </a>
+                    </div>
+                    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 text-center transform transition-transform hover:scale-105 duration-300">
+                        <img src="NR11.jpg" alt="Tasse Betok" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Tasse Betok</h3>
+                        <p class="text-gray-600 mb-4">Buvez votre thé avec ces tasses de qualités, durables et élégantes.</p>
+                        <a href="#contact" class="inline-block bg-amber-500 text-white font-bold py-2 px-6 rounded-full hover:bg-amber-600 transition duration-300">
+                            Commander
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Section Actualités -->
+        <section id="actualites" class="py-20 bg-slate-100">
+            <div class="container mx-auto p-4 text-center">
+                <h2 class="text-4xl font-black mb-12 text-emerald-800">Actualités</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Cartes d'actualités -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6 transform transition-transform hover:scale-105 duration-300">
+                       <!-- <img src="https://placehold.co/400x250/10B981/FFFFFF?text=Actualité+1" alt="Actualité 1" class="rounded-xl mb-4 w-full h-auto"/> -->
+                        <img src="Racine de gingembre et feuilles fraîches.png" alt="Racine de gingembre" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Racine de gingembre</h3>
+                        <p class="text-gray-600">Le gingembre est reconnu pour ses puissantes propriétés anti-inflammatoires et antioxydantes. Il favorise la digestion, soulage les nausées, stimule le système immunitaire et contribue à améliorer la circulation sanguine. Il est aussi réputé pour booster l’énergie et la vitalité de l’organisme.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-6 transform transition-transform hover:scale-105 duration-300">
+                        <img src="Citron_vert.png" alt="Citron vert" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Citron vert</h3>
+                        <p class="text-gray-600">Le citron est une source importante de vitamine C. Il renforce les défenses naturelles, aide à purifier l’organisme, favorise la digestion et contribue à maintenir une peau saine et éclatante. Son effet alcalinisant aide aussi à équilibrer le pH du corps.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-6 transform transition-transform hover:scale-105 duration-300">
+                        <img src="Tisannes.png" alt="Tisanne" class="rounded-xl mb-4 w-full h-auto"/>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-800">Conseils pour un mode de vie sain (Tisanne)</h3>
+                        <p class="text-gray-600">La tisane, lorsqu’elle est consommée avec un thé doux, combine les bienfaits des plantes et les antioxydants du thé. Elle contribue à la relaxation, à la digestion et à la détoxification naturelle du corps. Cette association aide aussi à l’hydratation et apporte des micronutriments essentiels, tout en offrant un effet apaisant sur le système nerveux.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Contact -->
+        <section id="contact" class="bg-emerald-800 py-20">
+            <div class="container mx-auto p-4 text-center">
+                <h2 class="text-4xl font-black mb-8 text-white">Contactez-nous</h2>
+                <p class="text-white mb-8 max-w-2xl mx-auto">
+                    Pour toute commande ou question, vous pouvez nous contacter via nos réseaux sociaux. Nous sommes à votre écoute !
+                </p>
+                <div class="flex justify-center space-x-8 text-white text-5xl mb-12">
+                    <!-- Raccourcis vers les réseaux sociaux -->
+                    <a href="https://wa.me/670181595" target="_blank" class="hover:text-emerald-300 transition-colors duration-300 transform hover:scale-110">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.facebook.com/share/16zowBud2t/?mibextid=qi2Omg" target="_blank" class="hover:text-emerald-300 transition-colors duration-300 transform hover:scale-110">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/naressemarket?utm_source=qr&igsh=MTB1emI1NnM2ZmlpZA==" target="_blank" class="hover:text-emerald-300 transition-colors duration-300 transform hover:scale-110">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@naressemarket?_t=ZM-8zTeyJ0VYv8&_r=1" target="_blank" class="hover:text-emerald-300 transition-colors duration-300 transform hover:scale-110">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+                <!-- Bouton pour ouvrir le formulaire de message -->
+                <button id="open-form"
+                    class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105">
+                    Envoyer un message
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pied de page
+    <footer class="text-center py-8 bg-white text-gray-600">
+        <p>&copy; 2025 Naresse Market. Tous droits réservés.</p>
+    </footer> -->
+    <footer class="flex justify-between items-center px-8 py-4 bg-white text-gray-600">
+        <p>&copy; 2025 Naresse Market. Tous droits réservés.</p>
+        <span id="date-heure" class="text-sm"></span>
+    </footer>
+
+    <!-- Modèle du formulaire de contact -->
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[100] flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 mx-4">
+            <h2 class="text-3xl font-black text-emerald-800 mb-6 text-center">Envoyer un message</h2>
+            <form id="contact-form" class="space-y-4">
+                <input type="text" name="from_name" placeholder="Votre nom" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400" required>
+                <input type="email" name="reply_to" placeholder="Votre e-mail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400" required>
+                <input type="text" name="phone" placeholder="Téléphone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <textarea name="message" rows="4" placeholder="Rédigez votre message ici..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400" required></textarea>
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" id="close-form" class="px-6 py-2 rounded-full bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold transition duration-300">Annuler</button>
+                    <button type="submit" class="px-6 py-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold transition duration-300">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bloc Script -->
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        // Fonction pour afficher un message modal personnalisé
+        function showMessage(title, content, type = 'success') {
+            const modal = document.getElementById('message-display-modal');
+            const titleEl = document.getElementById('message-title');
+            const contentEl = document.getElementById('message-content');
+            
+            titleEl.textContent = title;
+            contentEl.textContent = content;
+
+            if (type === 'error') {
+                titleEl.classList.add('text-red-600');
+                titleEl.classList.remove('text-emerald-800');
+            } else {
+                titleEl.classList.add('text-emerald-800');
+                titleEl.classList.remove('text-red-600');
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 1. Préchargeur
+        window.addEventListener("load", function () {
+            const preloader = document.getElementById("preloader");
+            const delayInSeconds = 2; // Réduit la durée pour une meilleure UX
+
+            setTimeout(() => {
+                preloader.style.opacity = "0";
+                setTimeout(() => {
+                    preloader.style.display = "none";
+                }, 500);
+            }, delayInSeconds * 1000);
+        });
+
+        // 2. Menu mobile
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // 3. Menu latéral des paramètres
+        const settingsMenu = document.getElementById('settings-menu');
+        const openSettings = document.getElementById('open-settings');
+        const closeSettings = document.getElementById('close-settings');
+        openSettings.addEventListener('click', () => {
+            settingsMenu.classList.remove('-translate-x-full');
+        });
+        closeSettings.addEventListener('click', () => {
+            settingsMenu.classList.add('-translate-x-full');
+        });
+        settingsMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                settingsMenu.classList.add('-translate-x-full');
+            });
+        });
+
+        // 4. Formulaire de contact (EmailJS)
+        emailjs.init("0NKn3ZDD8eJKRAR2R");
+        
+        const messageModal = document.getElementById("message-modal");
+        const openFormButton = document.getElementById("open-form");
+        const closeFormButton = document.getElementById("close-form");
+        const contactForm = document.getElementById("contact-form");
+        
+        openFormButton.addEventListener("click", () => {
+            messageModal.classList.remove("hidden");
+        });
+        closeFormButton.addEventListener("click", () => {
+            messageModal.classList.add("hidden");
+        });
+
+        contactForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            emailjs.sendForm("service_l3ay7p9", "template_u8jk9sd", this)
+                .then(() => {
+                    showMessage("Message Envoyé !", "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.");
+                    messageModal.classList.add("hidden");
+                    this.reset();
+                })
+                .catch((err) => {
+                    console.error(err);
+                    showMessage("Erreur", "Une erreur est survenue lors de l'envoi de votre message. Veuillez réessayer plus tard.", 'error');
+                });
+        });
+          // fonction pour mettre à jour la date et l'heure
+  function updateDateTime() {
+    const now = new Date();
+    const optionsDate = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const date = now.toLocaleDateString('fr-FR', optionsDate);
+    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+    document.getElementById('date-heure').textContent = date + ' ' + time;
+  }
+
+  // mettre à jour tout de suite
+  updateDateTime();
+  // mettre à jour chaque seconde
+  setInterval(updateDateTime, 1000);
+    </script>
+
+</body>
+</html>
